@@ -1,9 +1,11 @@
 <script setup>
 import { inject, ref, reactive } from 'vue'
+import { CanvasAPI } from '@/shared/api/CanvasAPI'
+import { useRouter } from 'vue-router'
+import { useToast } from 'vue-toastification'
 import UInput from '@/shared/ui/base/UInput.vue'
 import UIcon from '@/shared/ui/base/UIcon.vue'
 import UButton from '@/shared/ui/base/UButton.vue'
-import { CanvasAPI } from '@/shared/api/CanvasAPI'
 
 const props = defineProps({
   id: {
@@ -15,6 +17,9 @@ const props = defineProps({
     default: '',
   },
 })
+
+const router = useRouter()
+const toast = useToast()
 
 const formData = inject('template_form_data')
 const preview_image = ref()
@@ -42,7 +47,7 @@ const validateForm = () => {
   return !errors.title
 }
 
-const handleSubmit = () => {
+const handleSubmit = async () => {
   if (validateForm()) {
     const { name, tags, height, width } = formData.value
     const payload = {
@@ -56,7 +61,14 @@ const handleSubmit = () => {
       payload.preview_image = preview_image.value
     }
 
-    CanvasAPI.updateTemplate({ id: props.id, ...payload })
+    try {
+      await CanvasAPI.updateTemplate({ id: props.id, ...payload })
+      toast.success('Успешно обновлено')
+    } catch (e) {
+      toast.error('Ошибка при обновлении')
+    } finally {
+      router.push({ name: 'templates' })
+    }
   }
 }
 </script>
@@ -77,7 +89,7 @@ const handleSubmit = () => {
         </template>
       </UInput>
 
-      <UButton type="submit">Сохранить</UButton>
+      <UButton v-if="id" type="submit">Сохранить</UButton>
     </form>
   </div>
 </template>

@@ -1,6 +1,7 @@
 <script setup>
 import { ref, computed, onMounted, provide } from 'vue'
 import { CanvasAPI } from '@/shared/api/CanvasAPI'
+import { useToast } from 'vue-toastification'
 import TemplateCard from './ui/TemplateCard.vue'
 import UButton from '@/shared/ui/base/UButton.vue'
 import Icon from '@/shared/ui/base/UIcon.vue'
@@ -10,6 +11,7 @@ import TemplateForm from './ui/TemplateForm.vue'
 import USpinner from '@/shared/ui/base/USpinner.vue'
 
 const store = useGlobalStore()
+const toast = useToast()
 
 const showDelete = ref(false)
 const showCreate = ref(false)
@@ -51,9 +53,11 @@ const confirmRemove = async () => {
     store.setAppLoading(true)
     list.value = list.value.filter((card) => card.id !== selectedCardId.value)
     await CanvasAPI.deleteTemplate({ id: selectedCardId.value })
+    toast.success('Успешно удалено')
     store.setAppLoading(false)
   } catch (e) {
     console.error('Error removing card:', e)
+    toast.success('Ошибка при удалении')
   } finally {
     closeDialog()
   }
@@ -66,9 +70,11 @@ const confirmCreate = async () => {
       tags: formData.value.tags.split(','),
     }
     await CanvasAPI.createTemplate(payload)
+    toast.success('Успешно создано')
     loadData()
   } catch (e) {
     console.error('Error removing card:', e)
+    toast.error('Ошибка при создании')
   } finally {
     closeDialog()
   }
