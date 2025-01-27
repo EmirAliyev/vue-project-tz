@@ -32,10 +32,8 @@ export class CanvasAPI extends Base {
   }
 
   static async createTemplate(payload) {
-    const { data } = payload
+    const { data } = await this.request().post(`/${this.entity}`, payload)
 
-    const response = await this.request().post(`/${this.entity}`, data)
-
-    return response
+    return data
   }
 }

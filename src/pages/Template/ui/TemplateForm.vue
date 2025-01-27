@@ -47,21 +47,15 @@ const handleCreate = async () => {
   try {
     isSubmitDisabled.value = true
     store.setAppLoading(true)
-    
-    const payload = new FormData()
-    const { name, tags, height, width } = formData.value
-    const tagsArr = tags.split(',')
 
-    payload.append('name', name)
-    payload.append('height', height)
-    payload.append('width', width)
-    tagsArr.forEach((tag) => payload.append('tags[]', tag))
+    const payload = {
+      ...formData.value,
+      tags: formData.value.tags.split(','),
+    }
 
-    payload.append('_method', 'POST')
-
-    const response = await CanvasAPI.createTemplate({ data: payload })
-    const { data } = response
-    templateId = data.id
+    const response = await CanvasAPI.createTemplate(payload)
+    const { id } = response
+    templateId = id
 
     toast.success('Успешно создано')
   } catch (e) {
