@@ -6,7 +6,7 @@ export class AuthAPI extends Base {
   }
 
   static async auth(payload) {
-    const data = await this.request().post(`/${this.entity}`,payload)
+    const {data} = await this.request().post(`/${this.entity}`,payload)
 
     return data
   }

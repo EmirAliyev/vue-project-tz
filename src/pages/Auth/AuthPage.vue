@@ -19,7 +19,7 @@ const handleSend = async () => {
     const result = await AuthAPI.auth(formData)
     store.setUser(result.user)
     localStorage.setItem('token', result.token)
-    router.push({ name: 'home' })
+    router.push({ name: 'templates' })
   } catch (e) {
     console.error(e)
     store.setUser({})
