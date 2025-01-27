@@ -77,6 +77,7 @@ const confirmCreate = async () => {
     toast.error('Ошибка при создании')
   } finally {
     closeDialog()
+    store.setAppLoading(false)
   }
 }
 

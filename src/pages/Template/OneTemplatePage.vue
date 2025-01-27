@@ -39,5 +39,9 @@ onMounted(() => {
 
 <template>
   <USpinner v-if="store.isAppLoadingState" />
-  <TemplateForm v-else :id="id" :original-preview:="originalPreview" />
+  <TemplateForm
+    v-else
+    :id="id"
+    :original-preview:="originalPreview"
+  />
 </template>

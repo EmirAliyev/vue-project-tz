@@ -20,7 +20,6 @@ export class HttpService {
       (error) => {
         if (error.response.data.errors) {
           const errors = error.response.data.errors
-          console.log(errors, 654654)
           for (const key in errors) {
             if (key) {
               this.toast.error(errors[key][0])

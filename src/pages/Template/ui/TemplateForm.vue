@@ -1,5 +1,5 @@
 <script setup>
-import { inject, ref, reactive } from 'vue'
+import { inject, ref } from 'vue'
 import { CanvasAPI } from '@/shared/api/CanvasAPI'
 import { useRouter } from 'vue-router'
 import { useToast } from 'vue-toastification'
@@ -25,10 +25,6 @@ const formData = inject('template_form_data')
 const preview_image = ref()
 const local_img = ref(props.originalPreview)
 
-const errors = reactive({
-  title: null,
-})
-
 const handlePreview = (event) => {
   const file = event.target.files[0]
   if (file) {
@@ -42,33 +38,35 @@ const clearPreview = () => {
   preview_image.value = null
 }
 
-const validateForm = () => {
-  errors.title = formData.value.name.trim() ? null : 'Название обязательно для заполнения.'
-  return !errors.title
-}
+const isSubmitDisabled = ref(false)
+
+
 
 const handleSubmit = async () => {
-  if (validateForm()) {
-    const { name, tags, height, width } = formData.value
-    const payload = {
-      name,
-      height,
-      width,
-      tags: tags.split(','),
-    }
+  isSubmitDisabled.value = true
+  const { name, tags, height, width } = formData.value
+  const tagsArr = tags.split(',')
 
-    if (preview_image.value) {
-      payload.preview_image = preview_image.value
-    }
+  const payload = new FormData()
+  payload.append('name', name)
+  payload.append('height', height)
+  payload.append('width', width)
+  tagsArr.forEach((tag) => payload.append('tags[]', tag))
 
-    try {
-      await CanvasAPI.updateTemplate({ id: props.id, ...payload })
-      toast.success('Успешно обновлено')
-    } catch (e) {
-      toast.error('Ошибка при обновлении')
-    } finally {
-      router.push({ name: 'templates' })
-    }
+  if (preview_image.value) {
+    payload.append('preview_image', preview_image.value)
+  }
+
+  payload.append('_method', 'PATCH')
+
+  try {
+    await CanvasAPI.updateTemplate({ id: props.id, data: payload })
+    toast.success('Успешно обновлено')
+  } catch (e) {
+    toast.error('Ошибка при обновлении')
+  } finally {
+    isSubmitDisabled.value = false
+    router.push({ name: 'templates' })
   }
 }
 </script>
@@ -89,7 +87,7 @@ const handleSubmit = async () => {
         </template>
       </UInput>
 
-      <UButton v-if="id" type="submit">Сохранить</UButton>
+      <UButton v-if="id" :disabled="isSubmitDisabled" type="submit">Сохранить</UButton>
     </form>
   </div>
 </template>
