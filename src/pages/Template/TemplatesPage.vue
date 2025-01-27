@@ -62,24 +62,6 @@ const confirmRemove = async () => {
     closeDialog()
   }
 }
-const confirmCreate = async () => {
-  try {
-    store.setAppLoading(true)
-    const payload = {
-      ...formData.value,
-      tags: formData.value.tags.split(','),
-    }
-    await CanvasAPI.createTemplate(payload)
-    toast.success('Успешно создано')
-    loadData()
-  } catch (e) {
-    console.error('Error removing card:', e)
-    toast.error('Ошибка при создании')
-  } finally {
-    closeDialog()
-    store.setAppLoading(false)
-  }
-}
 
 onMounted(() => {
   try {
@@ -107,7 +89,7 @@ onMounted(() => {
     <UDialog
       v-model="showCreate"
       :disabled="store.isAppLoadingState"
-      @confirm="confirmCreate"
+      :is-footer-hidden="true"
       @cancel="setInitFormData"
     >
       <template #header>Создание шаблона</template>

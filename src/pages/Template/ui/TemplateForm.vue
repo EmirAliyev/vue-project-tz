@@ -6,7 +6,7 @@ import { useToast } from 'vue-toastification'
 import UInput from '@/shared/ui/base/UInput.vue'
 import UIcon from '@/shared/ui/base/UIcon.vue'
 import UButton from '@/shared/ui/base/UButton.vue'
-
+import { useGlobalStore } from '@/shared/stores/global.store'
 const props = defineProps({
   id: {
     type: String,
@@ -18,6 +18,7 @@ const props = defineProps({
   },
 })
 
+const store = useGlobalStore()
 const router = useRouter()
 const toast = useToast()
 
@@ -40,9 +41,40 @@ const clearPreview = () => {
 
 const isSubmitDisabled = ref(false)
 
+const handleCreate = async () => {
+  let templateId = null
 
+  try {
+    isSubmitDisabled.value = true
+    store.setAppLoading(true)
+    
+    const payload = new FormData()
+    const { name, tags, height, width } = formData.value
+    const tagsArr = tags.split(',')
 
-const handleSubmit = async () => {
+    payload.append('name', name)
+    payload.append('height', height)
+    payload.append('width', width)
+    tagsArr.forEach((tag) => payload.append('tags[]', tag))
+
+    payload.append('_method', 'POST')
+
+    const response = await CanvasAPI.createTemplate({ data: payload })
+    const { data } = response
+    templateId = data.id
+
+    toast.success('Успешно создано')
+  } catch (e) {
+    console.error('Error creating template:', e)
+    toast.error('Ошибка при создании')
+  } finally {
+    if (templateId) {
+      router.push({ name: 'template-edit', params: { id: templateId } })
+    }
+  }
+}
+
+const handleUpdate = async () => {
   isSubmitDisabled.value = true
   const { name, tags, height, width } = formData.value
   const tagsArr = tags.split(',')
@@ -69,6 +101,15 @@ const handleSubmit = async () => {
     router.push({ name: 'templates' })
   }
 }
+
+const handleSubmit = () => {
+  if (props.id) {
+    handleUpdate()
+    return
+  }
+  console.log('create')
+  handleCreate()
+}
 </script>
 
 <template>
@@ -81,13 +122,13 @@ const handleSubmit = async () => {
       <UInput v-model="formData.tags" label="Теги" placeholder="Введите теги через запятую" />
       <UInput v-model="formData.width" label="Ширина" placeholder="Введите ширину" />
       <UInput v-model="formData.height" label="Высота" placeholder="Введите высоту" />
-      <UInput label="Загрузить изображение" type="file" @change="handlePreview">
+      <UInput v-if="props.id" label="Загрузить изображение" type="file" @change="handlePreview">
         <template #suffix>
           <UIcon name="ic_x" @click="clearPreview" />
         </template>
       </UInput>
 
-      <UButton v-if="id" :disabled="isSubmitDisabled" type="submit">Сохранить</UButton>
+      <UButton :disabled="isSubmitDisabled" type="submit">Сохранить</UButton>
     </form>
   </div>
 </template>

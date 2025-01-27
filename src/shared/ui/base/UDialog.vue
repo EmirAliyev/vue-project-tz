@@ -13,7 +13,12 @@ const props = defineProps({
     type: Boolean,
     default: false,
   },
+  isFooterHidden: {
+    type: Boolean,
+    default: false,
+  },
 })
+
 const emit = defineEmits(['confirm', 'cancel'])
 const modelValue = defineModel({
   name: 'show',
@@ -54,7 +59,8 @@ const handleCancel = () => {
         <UIcon class="close-button" name="ic_x" @click="handleCancel" />
       </div>
       <div class="dialog-content-block"><slot></slot></div>
-      <div class="dialog-content-footer">
+
+      <div v-if="!props.isFooterHidden" class="dialog-content-footer">
         <slot name="footer">
           <div class="default-footer">
             <UButton :disabled="loading" style-class="white" @click="handleCancel"

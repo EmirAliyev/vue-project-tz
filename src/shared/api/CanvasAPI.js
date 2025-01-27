@@ -26,15 +26,16 @@ export class CanvasAPI extends Base {
   static async updateTemplate(payload) {
     const { id, data } = payload
 
-    // Отправляем запрос с уже подготовленным FormData
     const response = await this.request().post(`/${this.entity}/${id}`, data, {})
 
     return response
   }
 
   static async createTemplate(payload) {
-    const data = await this.request().post(`/${this.entity}`, payload)
+    const { data } = payload
 
-    return data
+    const response = await this.request().post(`/${this.entity}`, data)
+
+    return response
   }
 }
